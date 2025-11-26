@@ -1,0 +1,28 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=10
+USE_PROCD=1
+
+PROG=/usr/bin/school_login.sh
+NAME=autoschoollogin
+
+start_service() {
+    # 只有当 enabled=1 时才启动
+    uci_load autoschoollogin
+    uci_get_state autoschoollogin settings enabled IS_ENABLED
+    [ "$IS_ENABLED" != "1" ] && return 1
+
+    procd_open_instance
+    procd_set_param command $PROG
+    # 进程崩溃后，等待 5 秒重启，最多等待 3600 秒
+    procd_set_param respawn 3600 5 0 
+    procd_close_instance
+}
+
+service_triggers() {
+    # 确保在网络就绪后才启动 (例如 WAN 口获取到 IP 后)
+    procd_add_interface_trigger "interface.wan" "start"
+    # 当配置文件更改时重启服务
+    procd_add_config_trigger "autoschoollogin" "start"
+}
