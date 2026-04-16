@@ -95,7 +95,7 @@ portal_auth() {
 
 # 网络检查
 check_network() {
-    ping -c 2 -W 3 114.114.114.114 > /dev/null 2>&1
+    ping -c 2 -W 3 8.8.8.8 > /dev/null 2>&1
 }
 
 # 完整认证流程
